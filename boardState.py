@@ -57,7 +57,7 @@ class BoardState:
                 return False
             elif direction == 0:
                 if (corner2[0] > corner1[0]): # corner1 is above corner2
-                    self.__place_wall_horizontal(self, corner1, corner2)
+                    self.__place_wall_horizontal(corner1, corner2)
                     if (corner2[1] > corner1[1]): # corner 1 is to the left
                         self.__place_wall_horizontal((corner1 := [*corner1[:1], corner1[1] + 1]), (corner2 := [*corner2[:1], corner2[1] - 1]))
                     else:
@@ -73,19 +73,59 @@ class BoardState:
                 if(corner2[1] > corner1[1]): #corner 1 is to the left of corner 2
                     self.__place_wall_verticle(corner1,corner2)
                     if (corner2[0] > corner1[0]): # corner1 is above corner2
-                        self.__place_wall_verticle((corner1 := [corner1[0] + 1, *corner1[1:]]))
+                        self.__place_wall_verticle((corner1 := [corner1[0] + 1, *corner1[1:]]), (corner2 := [corner2[0] - 1, *corner2[1:]]))
                     else:
-                        self.__place_wall_verticle((corner1 := [corner1[0] - 1, *corner1[1:]]))
-    
-    
-        def __place_wall_horizontal(self, above, below):
-            self.board[above[0],[above[1]]][0][2] = 1 #change above to have a wall to the south
-            self.board[below[0],[below[1]]][0][0] = 1 #change below to have a wall to the north
-    
-        def __place_wall_verticle(self, left, right):
-            self.board[left[1],left[1]][0][1] = 1 #change left to have a wall to the east
-            self.board[right[1],right[1]][0][3] = 1 #hange right to have a wall to the west
-    
-board = BoardState(start=True)
+                        self.__place_wall_verticle((corner1 := [corner1[0] - 1, *corner1[1:]]), (corner2 := [corner2[0] + 1, *corner2[1:]]))
+                else: #corner 2 is to the left of corner 1
+                    self.__place_wall_verticle(corner2,corner1)
+                    if (corner2[0] > corner1[0]): # corner2 is above corner1
+                        self.__place_wall_verticle((corner2 := [corner2[0] + 1, *corner2[1:]]), (corner1 := [corner1[0] - 1, *corner1[1:]]))
+                    else:
+                        self.__place_wall_verticle((corner2 := [corner2[0] - 1, *corner2[1:]]), (corner1 := [corner1[0] + 1, *corner1[1:]]))
 
-print(board.board)
+    
+    
+    def __place_wall_horizontal(self, above, below):
+        above_walls, above_val = self.board[above[0], above[1]]
+        below_walls, below_val = self.board[below[0], below[1]]
+
+        above_walls[2] = 1  # South wall on the above cell
+        below_walls[0] = 1  # North wall on the below cell
+
+        self.board[above[0], above[1]] = (above_walls, above_val)
+        self.board[below[0], below[1]] = (below_walls, below_val)
+
+    def __place_wall_verticle(self, left, right):
+        left_walls, left_val = self.board[left[0], left[1]]
+        right_walls, right_val = self.board[right[0], right[1]]
+
+        left_walls[1] = 1  # East wall on the left cell
+        right_walls[3] = 1  # West wall on the right cell
+
+        self.board[left[0], left[1]] = (left_walls, left_val)
+        self.board[right[0], right[1]] = (right_walls, right_val)
+    
+    def __str__(self):
+        grid_str = ""
+        for r in range(self.size):
+            row_str = ", ".join(
+                f"[{walls.tolist()}, {val}]" for walls, val in self.board[r]
+            )
+            grid_str += f"{row_str}\n"
+        return grid_str
+
+### Testing code
+board = BoardState(start=True)
+print(board.board[0,0]) 
+print(board.board[0,1])
+print(board.board[1,0])
+print(board.board[1,1])
+
+board.place_wall((0,0), (1,1), 1)
+
+print(board.board[0,0]) 
+print(board.board[0,1])
+print(board.board[1,0])
+print(board.board[1,1])
+
+print(board)
