@@ -1,4 +1,5 @@
 import numpy as np
+
 #the board is a 9X9 grid of tuples ([int], int).
 #   -The first element is the wall state array, the second number is the player number
 #   WALL STATE ARRAY:
@@ -11,7 +12,7 @@ import numpy as np
 #           - EX: the grid position (0,0) will have the wall state [1,0,0,1] at the start of the game.
 #   PLAYER NUMBER:
 #       - identifies a player.
-#       - 0 is reserved for an empty square, any other integer may represent a player although it would be best to stick to 1 and 2 for simplicity
+#       - 0 is reserved for an empty square, any other integer may represent a player although it uses 1 and 2 for simplicity
 # 
 #   EXAMPLE BOARDSTATE WITH 3X3 GRID AT THE START OF A GAME
 #   [([1,0,0,1],0), ([1,0,0,0],1), ([1,1,0,0],0)
@@ -27,31 +28,34 @@ import numpy as np
 #       You can think of the wall array as a list of possible move for a player on that square, 
 #       so in the above example player 1 cannot move north or south as there is a wall in that direction
 
-
+# the parameter input is used to initialize a boardstate with an already established one.
+# if input is empty, a default boardstate will be used.
 class BoardState:
-    def __init__(self, input=None, start=False):
+    def __init__(self, input=None):
         self.size = 9
-        if start == True:
+        if input == None:
             self.board = np.empty((self.size, self.size), dtype=object)
             for r in range(self.size):
                 for c in range(self.size):
-                    self.board[r,c] = self.create_cell(r,c, self.size)
+                    self.board[r,c] = self.__create_cell(r,c, self.size)
+            
+            player1_walls, player1_val = self.board[0,4]
+            player2_walls, player2_val = self.board[8,4]
+            player1_val = 1
+            player2_val = 2
+            self.board[0,4] = (player1_walls, player1_val)
+            self.board[8,4] = (player2_walls, player2_val)
+
+            self.player1 = ([0,4], self.board[0,4])
+            self.player2 = ([8,4], self.board[8,4])
         else:
             self.board = input
 
-    def create_cell(self, r, c, size):
-        walls = [0,0,0,0]
+    # To place a wall use the coordinates of two directly-diagonal board spaces as the first two parameters for the place_wall function. 
+    #   These coordinates define the 2x2 grid of cells that the wall will be placed between.
+    #   Any two coordinates should work, as long as they are directly diagonal to each other. 
+    # The final parameter of the place_wall function is the direction of the wall that will be placed, 0 is for a horizontal wall, 1 is for a vertical wall.
 
-        if r == 0:  # Top row
-            walls[0] = 1
-        if r == size - 1: # Bottom Row
-            walls[2] = 1
-        if c == 0: # left collumn
-            walls[3] = 1
-        if c == size - 1: # right collumn
-            walls[1] = 1
-        
-        return (np.array(walls), 0)
     def place_wall(self, corner1, corner2, direction): # 0 for horizontal, 1 for verticle
             if abs(corner1[0] - corner2[0]) != 1 or abs(corner1[1] - corner2[1]) != 1: # check that the rows are 1 apart # checks if the collumns are 1 aprt.
                 return False
@@ -83,8 +87,42 @@ class BoardState:
                     else:
                         self.__place_wall_verticle((corner2 := [corner2[0] - 1, *corner2[1:]]), (corner1 := [corner1[0] + 1, *corner1[1:]]))
 
-    
-    
+    # external game logic should check for valid moves and players before calling this function
+    def move_player(self, player_num, direction):
+            
+            if player_num == 1:
+                player = self.player1
+            elif player_num == 2:
+                player = self.player2
+            else:
+                raise ValueError("Invalid player number")
+            
+            player_location = player[0]
+            
+            self.__set_player(player_location, 0)
+
+            if direction == 0: # north
+                player_location[0] -= 1               
+            elif direction == 1: # east
+                player_location[1] += 1     
+            elif direction == 2: # south
+                player_location[0] += 1  
+            elif direction == 3: # west
+                player_location[1] -= 1
+            else:
+                raise ValueError ("Invalid direction")
+            
+            self.__set_player(player_location, player_num)
+
+            if player_num == 1:
+                self.player1 = (player_location, self.board[player_location[0], player_location[1]])
+            elif player_num == 2:
+                self.player2 = (player_location, self.board[player_location[0], player_location[1]])
+
+    def __set_player(self, location, new_player_num):
+        cell_walls = self.board[location[0], location[1]][0]
+        self.board[location[0], location[1]] = (cell_walls, new_player_num)
+
     def __place_wall_horizontal(self, above, below):
         above_walls, above_val = self.board[above[0], above[1]]
         below_walls, below_val = self.board[below[0], below[1]]
@@ -105,6 +143,20 @@ class BoardState:
         self.board[left[0], left[1]] = (left_walls, left_val)
         self.board[right[0], right[1]] = (right_walls, right_val)
     
+    def __create_cell(self, r, c, size):
+        walls = [0,0,0,0]
+
+        if r == 0:  # Top row
+            walls[0] = 1
+        if r == size - 1: # Bottom Row
+            walls[2] = 1
+        if c == 0: # left collumn
+            walls[3] = 1
+        if c == size - 1: # right collumn
+            walls[1] = 1
+        
+        return (np.array(walls), 0)
+
     def __str__(self):
         grid_str = ""
         for r in range(self.size):
@@ -115,17 +167,14 @@ class BoardState:
         return grid_str
 
 ### Testing code
-board = BoardState(start=True)
-print(board.board[0,0]) 
-print(board.board[0,1])
-print(board.board[1,0])
-print(board.board[1,1])
+#board = BoardState()
 
-board.place_wall((0,0), (1,1), 1)
+#board.place_wall((0,0), (1,1), 1)
 
-print(board.board[0,0]) 
-print(board.board[0,1])
-print(board.board[1,0])
-print(board.board[1,1])
+#board.move_player(1, 2)
+#board.move_player(2, 1)
 
-print(board)
+#print(board)
+
+
+
