@@ -29,27 +29,40 @@ import numpy as np
 #       so in the above example player 1 cannot move north or south as there is a wall in that direction
 
 # the parameter input is used to initialize a boardstate with an already established one.
-# if input is empty, a default boardstate will be used.
+# if input is empty, a default boardstate of size 9 will be used.
+# if you wish to change the board size, initialize the BoardState as BoardState(size=x) where x is the custom size
+#   - x can be any positive odd integer. if x does not meet those criteria it will default to 9 (the size needs to be odd so that the players will start in the middle square on their respective sides)
 class BoardState:
-    def __init__(self, input=None):
-        self.size = 9
-        if input == None:
+    def __init__(self, *args, size=9):
+        #self.size = 5
+        if len(args) == 1 and isinstance(args[0], BoardState):
+            input = args[0]
+            self.size = input.size
+            self.board = np.copy(input.board)
+            self.player1 = input.player1
+            self.player2 = input.player2
+
+        else:
+            if size > 1 and size % 2 != 0:
+                self.size = size
+            else:
+                self.size = 9
             self.board = np.empty((self.size, self.size), dtype=object)
             for r in range(self.size):
                 for c in range(self.size):
                     self.board[r,c] = self.__create_cell(r,c, self.size)
             
-            player1_walls, player1_val = self.board[0,4]
-            player2_walls, player2_val = self.board[8,4]
+            player1_walls, player1_val = self.board[0, self.size // 2]
+            player2_walls, player2_val = self.board[self.size - 1, self.size // 2]
             player1_val = 1
             player2_val = 2
-            self.board[0,4] = (player1_walls, player1_val)
-            self.board[8,4] = (player2_walls, player2_val)
+            self.board[0, self.size // 2] = (player1_walls, player1_val)
+            self.board[self.size - 1, self.size // 2] = (player2_walls, player2_val)
 
-            self.player1 = ([0,4], self.board[0,4])
-            self.player2 = ([8,4], self.board[8,4])
-        else:
-            self.board = input
+            self.player1 = ([0, self.size // 2], self.board[0, self.size // 2])
+            self.player2 = ([self.size - 1, self.size // 2], self.board[self.size - 1, self.size // 2])
+        
+
 
     # To place a wall use the coordinates of two directly-diagonal board spaces as the first two parameters for the place_wall function. 
     #   These coordinates define the 2x2 grid of cells that the wall will be placed between.
@@ -167,7 +180,7 @@ class BoardState:
         return grid_str
 
 ### Testing code
-#board = BoardState()
+#board = BoardState(size=5)
 
 #board.place_wall((0,0), (1,1), 1)
 
@@ -175,6 +188,9 @@ class BoardState:
 #board.move_player(2, 1)
 
 #print(board)
+
+#board2 = BoardState(board)
+#print(board2)
 
 
 
