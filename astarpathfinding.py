@@ -28,6 +28,11 @@ def a_star_path(board_state, player_num: int):
         walls, _ = board_state.board[r][c]
         
         result = []
+        if player_num == 1:
+            opponent_position = tuple(board_state.player2[0])
+        else:
+            opponent_position = tuple(board_state.player1[0])
+
         for dir_index, (dr, dc) in enumerate(move_dirs):
             if walls[dir_index] == 0:
                 nr, nc = r + dr, c + dc
@@ -36,7 +41,34 @@ def a_star_path(board_state, player_num: int):
                     # checking oposite wall
                     opposite = (dir_index + 2) % 4
                     if opp_wall[opposite] == 0:
-                        result.append((nr, nc))
+                        #Atempt jumping the oponent
+                        if (nr, nc) == opponent_position:
+                            jnr, jnc = nr + dr, nc + dc
+                            if 0 <= jnr < size and 0 <= jnc < size:
+                                jump_cell = board_state.board[jnr][jnc]
+                                if jump_cell[0][opposite] == 0 and jump_cell[1] == 0:
+                                    result.append((jnr, jnc))
+                                    continue
+
+                            #if jump is blocked perform diagonal jump if possible
+                            if dir_index in (0,2): #north south facing
+                                for dc2 in [-1, 1]:
+                                    side_r, side_c = nr, nc + dc2
+                                    if 0 <= side_c < size:
+                                        if opp_wall[1 if dc2 == 1 else 3] == 0:
+                                            side_cell = board_state.board[side_r][side_c]
+                                            if side_cell[0][(1 if dc2 == 1 else 3 + 2) % 4] == 0:
+                                                result.append((side_r, side_c))
+                            else: #east west facing
+                                for dr2 in [-1, 1]:
+                                    side_r, side_c = nr + dr2, nc
+                                    if 0 <= side_r < size:
+                                        if opp_wall[0 if dr2 == -1 else 2] == 0:
+                                            side_cell = board_state.board[side_r][side_c]
+                                            if side_cell[0][(0 if dr2 == -1 else 2 + 2) % 4] == 0:
+                                                result.append((side_r, side_c))
+                        else:
+                            result.append((nr, nc))
         return result
     
     frontier = []
