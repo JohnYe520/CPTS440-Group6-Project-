@@ -14,9 +14,13 @@ def visualize_path(board: BoardState, path):
 
     def cell_content(r, c):
         _, val = board.board[r][c]
-        if (r, c) in path_set:
-            return "1" if val == 1 else "2" if val == 2 else "*"
-        return str(val) if val != 0 else "."
+        if val == 1:
+            return "1"
+        elif val == 2:
+            return "2"
+        elif (r, c) in path_set:
+            return "*"
+        return "."
 
     print("\nBoard with Path and Walls:\n")
 
@@ -92,8 +96,41 @@ def test_no_path():
     print("\nPlayer 1:")
     print_found(path1)
 
+def test_jump_opponent():
+    print("\n\nPerforming jump opponent test:")
+    board = BoardState(size = 5)
+    board.move_player(1, 2)
+    board.move_player(2, 0)
+    board.move_player(1, 2)
+    board.move_player(2, 0)
+    board.move_player(2, 2)
+
+    path1 = a_star_path(board, 1)
+    board._BoardState__set_player([2,2], 1)
+    print("\nPlayer 1:")
+    print_found(path1)
+    visualize_path(board, path1)
+
+def test_sidestep_opponent():
+    print("\n\nPerforming sidestep opponent test:")
+    board = BoardState(size=5)
+    board.move_player(1,2)
+    board.move_player(2, 0)
+    board.move_player(1, 2)
+    board.move_player(2, 0)
+    board.move_player(2, 2)
+    board.place_wall((3, 2), (4,3), 0)
+
+    path1 = a_star_path(board, 1)
+    board._BoardState__set_player([2,2], 1)
+    print("\nPlayer 1:")
+    print_found(path1)
+    visualize_path(board, path1)
+
 if __name__ == "__main__":
     test_basic_path()
     test_with_wall()
     test_complex_walls()
     test_no_path()
+    test_jump_opponent()
+    test_sidestep_opponent()
