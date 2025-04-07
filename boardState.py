@@ -80,7 +80,7 @@ class BoardState:
                     else:
                         self.__place_wall_horizontal((corner1 := [*corner1[:1], corner1[1] - 1]), (corner2 := [*corner2[:1], corner2[1] + 1]))
                 else: #corner2 is above corner1
-                    self.__place_wall_horizontal(self, corner2, corner1)
+                    self.__place_wall_horizontal(corner2, corner1)
                     if (corner1[1] > corner2[1]): # corner 2 is to the left
                         self.__place_wall_horizontal((corner2 := [*corner2[:1], corner2[1] + 1]), (corner1 := [*corner1[:1], corner1[1] - 1]))
                     else:
