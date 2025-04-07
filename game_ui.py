@@ -28,41 +28,37 @@ board = BoardState(size=BOARD_SIZE)
 selected_corner = None
 current_player = 1  # Player 1 starts
 
+placing_wall = False
+corners = []
+pending_wall = None  # Wait for direction keypress ('H' or 'V')
+
 def draw_board():
     screen.fill(WHITE)
-    
-    # Draw the grid (light gray lines)
+
+    # Draw the grid
     for r in range(board.size + 1):
-        pygame.draw.line(
-            screen, GRAY,
-            (MARGIN, MARGIN + r * CELL_SIZE),
-            (MARGIN + board.size * CELL_SIZE, MARGIN + r * CELL_SIZE),
-            1
-        )
+        pygame.draw.line(screen, GRAY,
+                         (MARGIN, MARGIN + r * CELL_SIZE),
+                         (MARGIN + board.size * CELL_SIZE, MARGIN + r * CELL_SIZE), 1)
     for c in range(board.size + 1):
-        pygame.draw.line(
-            screen, GRAY,
-            (MARGIN + c * CELL_SIZE, MARGIN),
-            (MARGIN + c * CELL_SIZE, MARGIN + board.size * CELL_SIZE),
-            1
-        )
-    
-    # Draw walls (thick black lines)
+        pygame.draw.line(screen, GRAY,
+                         (MARGIN + c * CELL_SIZE, MARGIN),
+                         (MARGIN + c * CELL_SIZE, MARGIN + board.size * CELL_SIZE), 1)
+
+    # Draw walls and players
     for r in range(board.size):
         for c in range(board.size):
             x = MARGIN + c * CELL_SIZE
             y = MARGIN + r * CELL_SIZE
             walls, val = board.board[r, c]
-            if walls[0]:  # North wall
+            if walls[0]:
                 pygame.draw.line(screen, BLACK, (x, y), (x + CELL_SIZE, y), 3)
-            if walls[1]:  # East wall
+            if walls[1]:
                 pygame.draw.line(screen, BLACK, (x + CELL_SIZE, y), (x + CELL_SIZE, y + CELL_SIZE), 3)
-            if walls[2]:  # South wall
+            if walls[2]:
                 pygame.draw.line(screen, BLACK, (x, y + CELL_SIZE), (x + CELL_SIZE, y + CELL_SIZE), 3)
-            if walls[3]:  # West wall
+            if walls[3]:
                 pygame.draw.line(screen, BLACK, (x, y), (x, y + CELL_SIZE), 3)
-            
-            # Draw players
             if val == 1:
                 pygame.draw.circle(screen, RED, (x + CELL_SIZE//2, y + CELL_SIZE//2), CELL_SIZE//3)
             elif val == 2:
@@ -72,7 +68,7 @@ def handle_movement(direction):
     global current_player
     try:
         board.move_player(current_player, direction)
-        current_player = 2 if current_player == 1 else 1  # Switch player
+        current_player = 2 if current_player == 1 else 1
     except Exception as e:
         print(f"Invalid move: {e}")
 
@@ -83,15 +79,11 @@ def handle_wall_placement(corner1, corner2, direction):
         print("Invalid wall placement")
 
 running = True
-placing_wall = False
-corners = []
-
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        
-        # Movement with arrow keys
+
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
                 handle_movement(0)
@@ -101,8 +93,13 @@ while running:
                 handle_movement(2)
             elif event.key == pygame.K_LEFT:
                 handle_movement(3)
-        
-        # Wall placement with mouse clicks
+            elif event.key == pygame.K_h and pending_wall:
+                handle_wall_placement(pending_wall[0], pending_wall[1], 0)
+                pending_wall = None
+            elif event.key == pygame.K_v and pending_wall:
+                handle_wall_placement(pending_wall[0], pending_wall[1], 1)
+                pending_wall = None
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
             c = (x - MARGIN) // CELL_SIZE
@@ -110,12 +107,13 @@ while running:
             if 0 <= r < BOARD_SIZE and 0 <= c < BOARD_SIZE:
                 corners.append((r, c))
                 if len(corners) == 2:
-                    # Determine direction (0 for horizontal, 1 for vertical)
-                    if abs(corners[0][0] - corners[1][0]) == 1:
-                        direction = 1  # Vertical
+                    r1, c1 = corners[0]
+                    r2, c2 = corners[1]
+                    if abs(r1 - r2) == 1 and abs(c1 - c2) == 1:
+                        pending_wall = (corners[0], corners[1])
+                        print("Select wall direction: press 'H' for horizontal or 'V' for vertical")
                     else:
-                        direction = 0  # Horizontal
-                    handle_wall_placement(corners[0], corners[1], direction)
+                        print("Invalid corner selection — must be diagonally adjacent.")
                     corners = []
 
     draw_board()
