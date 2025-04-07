@@ -3,6 +3,7 @@ from collections import deque
 from boardState import BoardState
 from shortMove import ShortestPathAgent
 
+# --------------------------------------------------------------
 # This is the implementation for a shortest-path moving baseline agent with a basic wall-placement logic that are used for testing against an AI-driven agent
 # The logic for this agent follows the rules of Quoridor
 # The agent will spawn on a random square on a random side of the board (0, X), (X, 0), (8, X), (X, 8)
@@ -11,8 +12,9 @@ from shortMove import ShortestPathAgent
 
 # Wall-placement logic:
 #   - calculate the distance between the opponent and its goal
-#   - if the distance is less than 5, place a wall in front of the opponent based on the moving direction according to the goal
+#   - if the distance < 5, place a wall in front of the opponent based on the moving direction according to the goal
 #   - if the wall-placement is blocked (i.e. wall already exists), the wall should be placed to the left or right or behind the opponent according to its goal.
+# --------------------------------------------------------------
 
 class WallPlacingAgent:
     def __init__(self, board: BoardState, player_num: int, start_pos: tuple, goal_pos: tuple):
@@ -21,11 +23,12 @@ class WallPlacingAgent:
         self.goal_pos = goal_pos
         self.wall_limit = 10
         self.wall_count = 0
-        self.wall_log = []  # now stores (turn, top_left, direction)
+        self.wall_log = []
         self.directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]
         self.board.player2 = (list(start_pos), self.board.board[start_pos[0], start_pos[1]])
         self.board.board[start_pos[0], start_pos[1]] = (self.board.board[start_pos[0], start_pos[1]][0], player_num)
 
+    # Place a wall or move
     def step(self, opponent_agent, current_turn):
         path = opponent_agent.find_shortest_path()
         wall_placed = False
@@ -51,6 +54,7 @@ class WallPlacingAgent:
         if not wall_placed:
             self.move_one_step()
 
+    # Move towards the goal
     def move_one_step(self):
         path = self.find_shortest_path()
         if path:
@@ -60,16 +64,18 @@ class WallPlacingAgent:
             self.board.move_player(self.player_num, direction)
             print(f"Agent moved to {next_pos}")
 
+    # Place a wall to block the opponent
     def try_place_wall(self, top_left, direction, turn):
         try:
             self.board.place_wall(top_left, (top_left[0]+1, top_left[1]+1), direction)
             self.wall_count += 1
             self.wall_log.append((turn, top_left, 'H' if direction == 0 else 'V'))
-            print(f"Wall placed at {top_left} dir: {'H' if direction == 0 else 'V'} (Turn {turn})")
+            print(f"Wall placed at {top_left} dir: {'H' if direction == 0 else 'V'} (Turn {turn})") # Log the wall-placement
             return True
         except:
             return False
 
+    # Try other directions when wall cannot be placed in front of the opponent
     def try_side_walls(self, top_left, direction, turn):
         offsets = [(-1, 0), (1, 0)] if direction == 0 else [(0, -1), (0, 1)]
         for dr, dc in offsets:
@@ -79,6 +85,7 @@ class WallPlacingAgent:
                     return True
         return False
 
+    # BFS to find the shortest path
     def find_shortest_path(self):
         start = tuple(self.board.player2[0])
         visited = set()
@@ -96,6 +103,7 @@ class WallPlacingAgent:
                     queue.append((tuple(next_pos), path + [next_pos]))
         return []
 
+    # Get valid moves including jump over the opponent
     def get_possible_moves(self, pos):
         possible = []
         for i, (dr, dc) in enumerate(self.directions):
@@ -110,6 +118,7 @@ class WallPlacingAgent:
         delta = (new[0] - old[0], new[1] - old[1])
         return self.directions.index(delta)
 
+# Agent for the opponent with BFS but no wall placement
 class ShortestPathStepAgent(ShortestPathAgent):
     def step(self):
         path = self.find_shortest_path()

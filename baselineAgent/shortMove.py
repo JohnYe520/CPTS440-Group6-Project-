@@ -4,12 +4,13 @@ import json
 from collections import deque
 from boardState import BoardState
 
+# --------------------------------------------------------------
 # This is the implementation for a shortest-path moving baseline agent that are used for testing against an AI-driven agent
 # The logic for this agent follows the rules of Quoridor
 # The agent will spawn on a random square on a random side of the board (0, X), (X, 0), (8, X), (X, 8)
 # The goal square for the agent is the corresponding square on the opposite side (e.g if the agent starts at (8, 4), the goal state would be (0, 4))
 # Breadth-First Search (BFS) is used for this baseline agent to find the shortest-path 
-
+# --------------------------------------------------------------
 
 class ShortestPathAgent:
     def __init__(self, board: BoardState, player_num: int, start_pos: tuple, goal_pos: tuple):
@@ -22,6 +23,7 @@ class ShortestPathAgent:
         self.board.player1 = (list(start_pos), self.board.board[start_pos[0], start_pos[1]])
         self.board.board[start_pos[0], start_pos[1]] = (self.board.board[start_pos[0], start_pos[1]][0], player_num)
 
+    # Using BFS to find the shortest path
     def find_shortest_path(self):
         start = tuple(self.board.player1[0] if self.player_num == 1 else self.board.player2[0])
         visited = set()
@@ -45,6 +47,7 @@ class ShortestPathAgent:
 
         return []
 
+    # Move along and log the shortest path
     def move_shortest_path(self):
         path = self.find_shortest_path()
         player_pos = list(self.board.player1[0] if self.player_num == 1 else self.board.player2[0])
@@ -67,6 +70,7 @@ class ShortestPathAgent:
         else:
             print("Could not find a path to the goal.")
 
+    # Get valid moves including jump over the opponent
     def get_possible_moves(self, player_pos):
         possible_moves = []
         for idx, (dr, dc) in enumerate(self.directions):
@@ -105,7 +109,7 @@ class ShortestPathAgent:
         return (0 <= pos[0] < self.board.size) and (0 <= pos[1] < self.board.size)
 
 
-# Function to randomly select start and goal positions on opposite sides of the board
+# Randomly select start and goal positions on opposite sides of the board
 def random_start_and_goal(size=9):
     side = random.choice(['top', 'bottom', 'left', 'right'])
     pos = random.randint(0, size - 1)
@@ -119,7 +123,7 @@ def random_start_and_goal(size=9):
     else:  # right
         return (pos, size - 1), (pos, 0)
 
-# Example usage
+
 if __name__ == '__main__':
     board_size = 9
     board = BoardState(size=board_size)
