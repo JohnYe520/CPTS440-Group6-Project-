@@ -1,4 +1,7 @@
 import numpy as np
+from player import Player
+from space import Space
+from wall import Wall
 
 #the board is a 9X9 grid of tuples ([int], int).
 #   -The first element is the wall state array, the second number is the player number
@@ -33,14 +36,16 @@ import numpy as np
 # if you wish to change the board size, initialize the BoardState as BoardState(size=x) where x is the custom size
 #   - x can be any positive odd integer. if x does not meet those criteria it will default to 9 (the size needs to be odd so that the players will start in the middle square on their respective sides)
 class BoardState:
-    def __init__(self, *args, size=9):
+    def __init__(self, *args, size=9, playerCount=2):
         #self.size = 5
         if len(args) == 1 and isinstance(args[0], BoardState):
             input = args[0]
             self.size = input.size
             self.board = np.copy(input.board)
-            self.player1 = input.player1
-            self.player2 = input.player2
+            for p in range(playerCount):
+                self.players[p] = input.players[p]
+            #self.player1 = input.player1
+            #self.player2 = input.player2
 
         else:
             if size > 1 and size % 2 != 0:
@@ -51,16 +56,34 @@ class BoardState:
             for r in range(self.size):
                 for c in range(self.size):
                     self.board[r,c] = self.__create_cell(r,c, self.size)
-            
-            player1_walls, player1_val = self.board[0, self.size // 2]
-            player2_walls, player2_val = self.board[self.size - 1, self.size // 2]
-            player1_val = 1
-            player2_val = 2
-            self.board[0, self.size // 2] = (player1_walls, player1_val)
-            self.board[self.size - 1, self.size // 2] = (player2_walls, player2_val)
+                    #self.board[r,c] = Space()
+            for r in range(self.size-1):
+                for c in range(self.size-1):
+                    self.hWalls[r,c] = Wall(self.board[r,c],self.board[r+1,c])
+                    if r > 0:
+                        self.hWalls[r,c].addNeighbor(self.hWalls[r-1,c], 1)
+                    self.vWalls[r,c] = Wall(self.board[r,c],self.board[r,c+1])
+                    if c > 0:
+                        self.vWalls[r,c].addNeighbor(self.vWalls[r,c-1],1)
+            if playerCount > 4 or playerCount < 2:
+                playerCount = 2
+            self.players[0] = Player(0, self.size // 2, 1)
+            self.players[1] = Player(self.size-1, self.size // 2, 2)
+            if playerCount >= 3:
+                self.players[2] = Player(self.size // 2, 0, 3)
+                if playerCount == 4:
+                    self.players[3] = Player(self.size // 2, self.size-1, 4)
+            for p in self.players:
+                self.board[p.X, p.Y].insertPlayer(p.Num)
+            #player1_walls, player1_val = self.board[0, self.size // 2]
+            #player2_walls, player2_val = self.board[self.size - 1, self.size // 2]
+            #player1_val = 1
+            #player2_val = 2
+            #self.board[0, self.size // 2] = (player1_walls, player1_val)
+            #self.board[self.size - 1, self.size // 2] = (player2_walls, player2_val)
 
-            self.player1 = ([0, self.size // 2], self.board[0, self.size // 2])
-            self.player2 = ([self.size - 1, self.size // 2], self.board[self.size - 1, self.size // 2])
+            #self.player1 = ([0, self.size // 2], self.board[0, self.size // 2])
+            #self.player2 = ([self.size - 1, self.size // 2], self.board[self.size - 1, self.size // 2])
         
 
 
@@ -168,7 +191,8 @@ class BoardState:
         if c == size - 1: # right collumn
             walls[1] = 1
         
-        return (np.array(walls), 0)
+        #return (np.array(walls), 0)
+        return Space(walls)
 
     def __str__(self):
         grid_str = ""
@@ -180,17 +204,17 @@ class BoardState:
         return grid_str
 
 ### Testing code
-#board = BoardState(size=5)
+board = BoardState(size=5)
 
-#board.place_wall((0,0), (1,1), 1)
+board.place_wall((0,0), (1,1), 1)
 
-#board.move_player(1, 2)
-#board.move_player(2, 1)
+board.move_player(1, 2)
+board.move_player(2, 1)
 
-#print(board)
+print(board)
 
-#board2 = BoardState(board)
-#print(board2)
+board2 = BoardState(board)
+print(board2)
 
 
 
