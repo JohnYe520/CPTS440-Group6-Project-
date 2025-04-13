@@ -110,9 +110,9 @@ class BoardState:
             else:
                 raise ValueError("Invalid player number")
             
-            player_location = player[0]
+            player_location = list(player[0])
             
-            self.__set_player(player_location, 0)
+            self.__set_player(player[0], 0)
 
             if direction == 0: # north
                 player_location[0] -= 1               
@@ -178,6 +178,54 @@ class BoardState:
             )
             grid_str += f"{row_str}\n"
         return grid_str
+    
+    def move_player_jumpaware(self, player_num, target_pos):
+        assert isinstance(target_pos, (list, tuple)) and len(target_pos) == 2, f"Invalid target_pos: {target_pos}"
+
+        if player_num == 1:
+            old_pos = self.player1[0]
+            self.__set_player(old_pos, 0)
+            self.__set_player(target_pos, 1)
+            self.player1 = (target_pos, self.board[target_pos[0], target_pos[1]])
+        elif player_num == 2:
+            old_pos = self.player2[0]
+            self.__set_player(old_pos, 0)
+            self.__set_player(target_pos, 2)
+            self.player2 = (target_pos, self.board[target_pos[0], target_pos[1]])
+        else:
+            raise ValueError("Invalid player number")
+        
+    def can_move(self, player_num, direction):
+        if player_num == 1:
+            pos = self.player1[0]
+        elif player_num == 2:
+            pos = self.player2[0]
+        else:
+            return False
+
+        r, c = pos
+        walls, _ = self.board[r][c]
+
+        # If there's a wall in that direction, can't move
+        if walls[direction] == 1:
+            return False
+
+        # Determine new position
+        move_dirs = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+        dr, dc = move_dirs[direction]
+        new_r, new_c = r + dr, c + dc
+
+        # Check bounds
+        if not (0 <= new_r < self.size and 0 <= new_c < self.size):
+            return False
+
+        # Check opposite wall in the destination cell
+        opposite = (direction + 2) % 4
+        neighbor_walls, _ = self.board[new_r][new_c]
+        if neighbor_walls[opposite] == 1:
+            return False
+
+        return True
 
 ### Testing code
 #board = BoardState(size=5)
