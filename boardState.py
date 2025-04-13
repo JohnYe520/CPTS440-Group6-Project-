@@ -92,36 +92,41 @@ class BoardState:
     #   Any two coordinates should work, as long as they are directly diagonal to each other. 
     # The final parameter of the place_wall function is the direction of the wall that will be placed, 0 is for a horizontal wall, 1 is for a vertical wall.
 
-    def place_wall(self, corner1, corner2, direction): # 0 for horizontal, 1 for verticle
-            if abs(corner1[0] - corner2[0]) != 1 or abs(corner1[1] - corner2[1]) != 1: # check that the rows are 1 apart # checks if the collumns are 1 aprt.
-                return False
-            elif direction == 0:
-                if (corner2[0] > corner1[0]): # corner1 is above corner2
-                    self.__place_wall_horizontal(corner1, corner2)
-                    if (corner2[1] > corner1[1]): # corner 1 is to the left
-                        self.__place_wall_horizontal((corner1 := [*corner1[:1], corner1[1] + 1]), (corner2 := [*corner2[:1], corner2[1] - 1]))
-                    else:
-                        self.__place_wall_horizontal((corner1 := [*corner1[:1], corner1[1] - 1]), (corner2 := [*corner2[:1], corner2[1] + 1]))
-                else: #corner2 is above corner1
-                    self.__place_wall_horizontal(self, corner2, corner1)
-                    if (corner1[1] > corner2[1]): # corner 2 is to the left
-                        self.__place_wall_horizontal((corner2 := [*corner2[:1], corner2[1] + 1]), (corner1 := [*corner1[:1], corner1[1] - 1]))
-                    else:
-                        self.__place_wall_horizontal((corner2 := [*corner2[:1], corner2[1] - 1]), (corner1 := [*corner1[:1], corner1[1] + 1]))
+    # def place_wall(self, corner1, corner2, direction): # 0 for horizontal, 1 for verticle
+    #         if abs(corner1[0] - corner2[0]) != 1 or abs(corner1[1] - corner2[1]) != 1: # check that the rows are 1 apart # checks if the collumns are 1 aprt.
+    #             return False
+    #         elif direction == 0:
+    #             if (corner2[0] > corner1[0]): # corner1 is above corner2
+    #                 self.__place_wall_horizontal(corner1, corner2)
+    #                 if (corner2[1] > corner1[1]): # corner 1 is to the left
+    #                     self.__place_wall_horizontal((corner1 := [*corner1[:1], corner1[1] + 1]), (corner2 := [*corner2[:1], corner2[1] - 1]))
+    #                 else:
+    #                     self.__place_wall_horizontal((corner1 := [*corner1[:1], corner1[1] - 1]), (corner2 := [*corner2[:1], corner2[1] + 1]))
+    #             else: #corner2 is above corner1
+    #                 self.__place_wall_horizontal(self, corner2, corner1)
+    #                 if (corner1[1] > corner2[1]): # corner 2 is to the left
+    #                     self.__place_wall_horizontal((corner2 := [*corner2[:1], corner2[1] + 1]), (corner1 := [*corner1[:1], corner1[1] - 1]))
+    #                 else:
+    #                     self.__place_wall_horizontal((corner2 := [*corner2[:1], corner2[1] - 1]), (corner1 := [*corner1[:1], corner1[1] + 1]))
             
-            elif direction == 1:
-                if(corner2[1] > corner1[1]): #corner 1 is to the left of corner 2
-                    self.__place_wall_verticle(corner1,corner2)
-                    if (corner2[0] > corner1[0]): # corner1 is above corner2
-                        self.__place_wall_verticle((corner1 := [corner1[0] + 1, *corner1[1:]]), (corner2 := [corner2[0] - 1, *corner2[1:]]))
-                    else:
-                        self.__place_wall_verticle((corner1 := [corner1[0] - 1, *corner1[1:]]), (corner2 := [corner2[0] + 1, *corner2[1:]]))
-                else: #corner 2 is to the left of corner 1
-                    self.__place_wall_verticle(corner2,corner1)
-                    if (corner2[0] > corner1[0]): # corner2 is above corner1
-                        self.__place_wall_verticle((corner2 := [corner2[0] + 1, *corner2[1:]]), (corner1 := [corner1[0] - 1, *corner1[1:]]))
-                    else:
-                        self.__place_wall_verticle((corner2 := [corner2[0] - 1, *corner2[1:]]), (corner1 := [corner1[0] + 1, *corner1[1:]]))
+    #         elif direction == 1:
+    #             if(corner2[1] > corner1[1]): #corner 1 is to the left of corner 2
+    #                 self.__place_wall_verticle(corner1,corner2)
+    #                 if (corner2[0] > corner1[0]): # corner1 is above corner2
+    #                     self.__place_wall_verticle((corner1 := [corner1[0] + 1, *corner1[1:]]), (corner2 := [corner2[0] - 1, *corner2[1:]]))
+    #                 else:
+    #                     self.__place_wall_verticle((corner1 := [corner1[0] - 1, *corner1[1:]]), (corner2 := [corner2[0] + 1, *corner2[1:]]))
+    #             else: #corner 2 is to the left of corner 1
+    #                 self.__place_wall_verticle(corner2,corner1)
+    #                 if (corner2[0] > corner1[0]): # corner2 is above corner1
+    #                     self.__place_wall_verticle((corner2 := [corner2[0] + 1, *corner2[1:]]), (corner1 := [corner1[0] - 1, *corner1[1:]]))
+    #                 else:
+    #                     self.__place_wall_verticle((corner2 := [corner2[0] - 1, *corner2[1:]]), (corner1 := [corner1[0] + 1, *corner1[1:]]))
+
+    def place_wall(self, space1, space2, neighbor):
+        if not space1.neighbors.contains(space2):
+            return False
+        else
 
     # external game logic should check for valid moves and players before calling this function
     def move_player(self, player_num, direction):
