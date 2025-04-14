@@ -4,10 +4,12 @@ from aStarAgent import AStarAgent
 from astartesting import visualize_path
 from astarpathfinding import a_star_path
 
+#simple ai to pick a random move
 class RandomMover:
     def __init__(self, player_num):
         self.player_num = player_num
 
+    #chooses a valid random move direction
     def choose_action(self, board_state):
         directions = [0, 1, 2, 3]
         random.shuffle(directions)
@@ -20,11 +22,13 @@ class RandomMover:
                 return ("move", {"direction": d})
             
         return ("noop", {}) #no valid moves
-    
+
+#controls game setup, turns, and win con
 class GameManager:
     def __init__(self):
         self.board = BoardState(size=9)
 
+        #placing players
         mid_col = self.board.size // 2
         self.board.teleport_player(1, 0, mid_col)
         self.board.teleport_player(2, self.board.size - 1, mid_col)
@@ -32,6 +36,7 @@ class GameManager:
         self.player1 = AStarAgent(player_num=1)
         self.player2 = RandomMover(player_num=2)
 
+    #checking wincon
     def is_goal_reached(self, player_num):
         player = self.board.players[player_num - 1]
         if player_num == 1:
@@ -39,6 +44,7 @@ class GameManager:
         else:
             return player.Y == 0
 
+    #main game loop
     def play_game(self, max_turns=50):
         print("\n=== Starting Game ===")
         visualize_path(self.board, None)
@@ -48,12 +54,13 @@ class GameManager:
 
             for agent in [self.player1, self.player2]:
                 if self.is_goal_reached(agent.player_num):
-                    print(f"\n🎉 Player {agent.player_num} has reached their goal!")
+                    print(f"\n Player {agent.player_num} has reached their goal!")
                     return
 
                 action, params = agent.choose_action(self.board)
                 print(f"[Turn {turn + 1}] Player {agent.player_num} chose action: {action}, {params}")
 
+                #executing chosen actions
                 if action == "noop":
                     continue
                 elif action == "move":
@@ -64,6 +71,10 @@ class GameManager:
                 elif action == "wall":
                     self.board.place_wall(params["corner1"], params["corner2"], params["direction"])
 
+                # This is a crude visualizer for the board state
+                # using some logic from my testing functionality
+                # This is where I imagine it would be best for the 
+                # UI team to link into the logic layer
                 visualize_path(self.board, a_star_path(self.board, agent.player_num))
 
         print("\n Game ended without a winner.")
