@@ -75,7 +75,13 @@ class BoardState:
 
             #self.player1 = ([0, self.size // 2], self.board[0, self.size // 2])
             #self.player2 = ([self.size - 1, self.size // 2], self.board[self.size - 1, self.size // 2])
-        
+
+    def teleport_player(self, player_num, y, x):
+        player = self.players[player_num - 1]
+        self.board[player.Y, player.X].remove_player()
+        player.move(x, y)
+        self.board[y, x].insert_player(player.PlayerNo)
+
     def wall_init(self):
         self.hWalls = []
         self.vWalls = []

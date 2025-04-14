@@ -19,21 +19,21 @@ class Space:
 
     def remove_player(self):
         temp = self.player
-        self.player = NULL
+        self.player = None
         return temp
     
     def get_walls(self):
-        walls = [0,0,0,0]
-        y,x = self.pos
+        walls = [1, 1, 1, 1]  # Start assuming walls in all directions
+        y, x = self.pos
         for n in self.neighbors:
-            if n.pos == (y-1,x):
-                walls[0] = 1
-            if n.pos == (y,x+1):
-                walls[1] = 1
-            if n.pos == (y+1,x):
-                walls[2] = 1
-            if n.pos == (y,x-1):
-                walls[3] = 1
+            if n.pos == (y-1, x):
+                walls[0] = 0  # North is open
+            if n.pos == (y, x+1):
+                walls[1] = 0  # East is open
+            if n.pos == (y+1, x):
+                walls[2] = 0  # South is open
+            if n.pos == (y, x-1):
+                walls[3] = 0  # West is open
         return walls
 
 

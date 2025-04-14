@@ -28,10 +28,11 @@ def a_star_path(board_state, player_num: int):
         state = board_state.board[r][c]
         walls = state.get_walls()
         result = []
+
         if player_num == 1:
-            opponent_position = (board_state.players[1].Y,board_state.players[1].X)
+            opponent_position = (board_state.players[1].Y, board_state.players[1].X)
         else:
-            opponent_position = (board_state.players[0].Y,board_state.players[0].X)
+            opponent_position = (board_state.players[0].Y, board_state.players[0].X)
 
         for dir_index, (dr, dc) in enumerate(move_dirs):
             if walls[dir_index] == 0:
@@ -39,34 +40,38 @@ def a_star_path(board_state, player_num: int):
                 if 0 <= nr < size and 0 <= nc < size:
                     state2 = board_state.board[nr][nc]
                     opp_wall = state2.get_walls()
-                    # checking oposite wall
                     opposite = (dir_index + 2) % 4
+
                     if opp_wall[opposite] == 0:
-                        #Atempt jumping the oponent
                         if (nr, nc) == opponent_position:
+                            # Attempt to jump over opponent
                             jnr, jnc = nr + dr, nc + dc
                             if 0 <= jnr < size and 0 <= jnc < size:
                                 jump_cell = board_state.board[jnr][jnc]
-                                if jump_cell[0][opposite] == 0 and jump_cell[1] == 0:
+                                print(f"Trying jump from ({r},{c}) over opponent at ({nr},{nc}) to ({jnr},{jnc})")
+                                print(f"Opponent walls: {opp_wall}, Jump cell empty: {jump_cell.player is None}")
+                                if opp_wall[dir_index] == 0 and jump_cell.player is None:
                                     result.append((jnr, jnc))
                                     continue
 
-                            #if jump is blocked perform diagonal jump if possible
-                            if dir_index in (0,2): #north south facing
+                            # If jump blocked, try sidestep (diagonal) moves
+                            if dir_index in (0, 2):  # North/South
                                 for dc2 in [-1, 1]:
                                     side_r, side_c = nr, nc + dc2
                                     if 0 <= side_c < size:
                                         if opp_wall[1 if dc2 == 1 else 3] == 0:
                                             side_cell = board_state.board[side_r][side_c]
-                                            if side_cell[0][(1 if dc2 == 1 else 3 + 2) % 4] == 0:
+                                            side_walls = side_cell.get_walls()
+                                            if side_walls[(1 if dc2 == 1 else 3 + 2) % 4] == 0:
                                                 result.append((side_r, side_c))
-                            else: #east west facing
+                            else:  # East/West
                                 for dr2 in [-1, 1]:
                                     side_r, side_c = nr + dr2, nc
                                     if 0 <= side_r < size:
                                         if opp_wall[0 if dr2 == -1 else 2] == 0:
                                             side_cell = board_state.board[side_r][side_c]
-                                            if side_cell[0][(0 if dr2 == -1 else 2 + 2) % 4] == 0:
+                                            side_walls = side_cell.get_walls()
+                                            if side_walls[(0 if dr2 == -1 else 2 + 2) % 4] == 0:
                                                 result.append((side_r, side_c))
                         else:
                             result.append((nr, nc))
