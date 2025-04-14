@@ -48,8 +48,6 @@ def a_star_path(board_state, player_num: int):
                             jnr, jnc = nr + dr, nc + dc
                             if 0 <= jnr < size and 0 <= jnc < size:
                                 jump_cell = board_state.board[jnr][jnc]
-                                print(f"Trying jump from ({r},{c}) over opponent at ({nr},{nc}) to ({jnr},{jnc})")
-                                print(f"Opponent walls: {opp_wall}, Jump cell empty: {jump_cell.player is None}")
                                 if opp_wall[dir_index] == 0 and jump_cell.player is None:
                                     result.append((jnr, jnc))
                                     continue
