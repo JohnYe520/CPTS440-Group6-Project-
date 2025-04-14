@@ -5,10 +5,10 @@ def a_star_path(board_state, player_num: int):
 
     # Selecting player to get start pos and goal row
     if player_num == 1:
-        start = tuple(board_state.player1[0])
+        start = (board_state.players[0].Y,board_state.players[0].X)
         goal_rows = {size - 1}
     elif player_num == 2:
-        start = tuple(board_state.player2[0])
+        start = (board_state.players[0].Y,board_state.players[0].X)
         goal_rows = {0}
     else:
         raise ValueError("Invalid player number (should be 1 or 2)")

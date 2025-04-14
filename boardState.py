@@ -1,3 +1,5 @@
+from asyncio.windows_events import NULL
+from typing import List
 import numpy as np
 from player import Player
 from space import Space
@@ -42,8 +44,9 @@ class BoardState:
             input = args[0]
             self.size = input.size
             self.board = np.copy(input.board)
-            for p in range(playerCount):
-                self.players[p] = input.players[p]
+            self.players = input.players
+            self.hWalls = input.hWalls
+            self.vWalls = input.vWalls
             #self.player1 = input.player1
             #self.player2 = input.player2
 
@@ -55,26 +58,14 @@ class BoardState:
             self.board = np.empty((self.size, self.size), dtype=object)
             for r in range(self.size):
                 for c in range(self.size):
-                    self.board[r,c] = self.__create_cell(r,c, self.size)
-                    #self.board[r,c] = Space()
-            for r in range(self.size-1):
-                for c in range(self.size-1):
-                    self.hWalls[r,c] = Wall(self.board[r,c],self.board[r+1,c])
-                    if r > 0:
-                        self.hWalls[r,c].addNeighbor(self.hWalls[r-1,c], 1)
-                    self.vWalls[r,c] = Wall(self.board[r,c],self.board[r,c+1])
-                    if c > 0:
-                        self.vWalls[r,c].addNeighbor(self.vWalls[r,c-1],1)
-            if playerCount > 4 or playerCount < 2:
-                playerCount = 2
-            self.players[0] = Player(0, self.size // 2, 1)
-            self.players[1] = Player(self.size-1, self.size // 2, 2)
-            if playerCount >= 3:
-                self.players[2] = Player(self.size // 2, 0, 3)
-                if playerCount == 4:
-                    self.players[3] = Player(self.size // 2, self.size-1, 4)
-            for p in self.players:
-                self.board[p.X, p.Y].insertPlayer(p.Num)
+                    #self.board[r,c] = self.__create_cell(r,c, self.size)
+                    self.board[r,c] = Space()
+            for r in range(self.size):
+                for c in range(self.size):
+                    self.add_neighbors(r,c)
+            
+            self.wall_init()
+            self.player_init(playerCount)
             #player1_walls, player1_val = self.board[0, self.size // 2]
             #player2_walls, player2_val = self.board[self.size - 1, self.size // 2]
             #player1_val = 1
@@ -85,129 +76,205 @@ class BoardState:
             #self.player1 = ([0, self.size // 2], self.board[0, self.size // 2])
             #self.player2 = ([self.size - 1, self.size // 2], self.board[self.size - 1, self.size // 2])
         
+    def wall_init(self):
+        self.hWalls = []
+        self.vWalls = []
+        for r in range(self.size-1):
+                for c in range(self.size-1):
+                    self.hWalls.append(Wall([self.board[r,c],self.board[r+1,c],self.board[r,c+1],self.board[r+1,c+1]]))
+                    self.vWalls.append(Wall([self.board[r,c],self.board[r,c+1],self.board[r+1,c],self.board[r+1,c+1]]))
 
+    def player_init(self, playerCount):
+        if playerCount > 4 or playerCount < 2:
+                playerCount = 2
+        self.players = []
+        self.players.append(Player(self.size//2, 0, 1))
+        self.players.append(Player(self.size//2, self.size-1, 2))
+        if playerCount >= 3:
+                self.players.append(Player(self.size // 2, 0, 3))
+                if playerCount == 4:
+                    self.players.append(Player(self.size // 2, self.size-1, 4))
+        for p in self.players:
+                self.board[p.Y, p.X].insert_player(p.PlayerNo)
 
+    def add_neighbors(self, i, j):
+        # index = self.board.index(space)
+        space = self.board[i,j]
+        # print(i)
+        # print(j)
+        if i > 0:
+            space.insert_neighbor(self.board[i-1,j])
+        if i < self.size-1:
+            space.insert_neighbor(self.board[i+1,j])
+        if j > 0:
+            space.insert_neighbor(self.board[i,j-1])
+        if j < self.size-1:
+            space.insert_neighbor(self.board[i,j+1])
+            
     # To place a wall use the coordinates of two directly-diagonal board spaces as the first two parameters for the place_wall function. 
     #   These coordinates define the 2x2 grid of cells that the wall will be placed between.
     #   Any two coordinates should work, as long as they are directly diagonal to each other. 
     # The final parameter of the place_wall function is the direction of the wall that will be placed, 0 is for a horizontal wall, 1 is for a vertical wall.
 
-    # def place_wall(self, corner1, corner2, direction): # 0 for horizontal, 1 for verticle
-    #         if abs(corner1[0] - corner2[0]) != 1 or abs(corner1[1] - corner2[1]) != 1: # check that the rows are 1 apart # checks if the collumns are 1 aprt.
-    #             return False
-    #         elif direction == 0:
-    #             if (corner2[0] > corner1[0]): # corner1 is above corner2
-    #                 self.__place_wall_horizontal(corner1, corner2)
-    #                 if (corner2[1] > corner1[1]): # corner 1 is to the left
-    #                     self.__place_wall_horizontal((corner1 := [*corner1[:1], corner1[1] + 1]), (corner2 := [*corner2[:1], corner2[1] - 1]))
-    #                 else:
-    #                     self.__place_wall_horizontal((corner1 := [*corner1[:1], corner1[1] - 1]), (corner2 := [*corner2[:1], corner2[1] + 1]))
-    #             else: #corner2 is above corner1
-    #                 self.__place_wall_horizontal(self, corner2, corner1)
-    #                 if (corner1[1] > corner2[1]): # corner 2 is to the left
-    #                     self.__place_wall_horizontal((corner2 := [*corner2[:1], corner2[1] + 1]), (corner1 := [*corner1[:1], corner1[1] - 1]))
-    #                 else:
-    #                     self.__place_wall_horizontal((corner2 := [*corner2[:1], corner2[1] - 1]), (corner1 := [*corner1[:1], corner1[1] + 1]))
-            
-    #         elif direction == 1:
-    #             if(corner2[1] > corner1[1]): #corner 1 is to the left of corner 2
-    #                 self.__place_wall_verticle(corner1,corner2)
-    #                 if (corner2[0] > corner1[0]): # corner1 is above corner2
-    #                     self.__place_wall_verticle((corner1 := [corner1[0] + 1, *corner1[1:]]), (corner2 := [corner2[0] - 1, *corner2[1:]]))
-    #                 else:
-    #                     self.__place_wall_verticle((corner1 := [corner1[0] - 1, *corner1[1:]]), (corner2 := [corner2[0] + 1, *corner2[1:]]))
-    #             else: #corner 2 is to the left of corner 1
-    #                 self.__place_wall_verticle(corner2,corner1)
-    #                 if (corner2[0] > corner1[0]): # corner2 is above corner1
-    #                     self.__place_wall_verticle((corner2 := [corner2[0] + 1, *corner2[1:]]), (corner1 := [corner1[0] - 1, *corner1[1:]]))
-    #                 else:
-    #                     self.__place_wall_verticle((corner2 := [corner2[0] - 1, *corner2[1:]]), (corner1 := [corner1[0] + 1, *corner1[1:]]))
+    # walls have four designated spaces, only 1 horiz and 1 vert can have the same set of spaces
+    def place_wall(self, corner1, corner2, direction): # 0 for horizontal, 1 for verticle
+             if abs(corner1[0] - corner2[0]) != 1 or abs(corner1[1] - corner2[1]) != 1: # check that the rows are 1 apart # checks if the collumns are 1 aprt.
+                 return False
+             space1 = self.board[corner1[0],corner1[1]]
+             # space2 = self.board[corner1[0],corner2[1]]
+             # space3 = self.board[corner2[0],corner1[1]]
+             space2 = self.board[corner2[0],corner2[1]]
+             wall = self.find_wall(space1,space2,direction)
+             return wall.wall_off()
 
-    def place_wall(self, space1, space2, neighbor):
-        if not space1.neighbors.contains(space2):
-            return False
-        else
+                 # if (corner2[0] > corner1[0]): # corner1 is above corner2
+                 #     self.__place_wall_horizontal(corner1, corner2)
+                 #     if (corner2[1] > corner1[1]): # corner 1 is to the left
+                 #         self.__place_wall_horizontal((corner1 := [*corner1[:1], corner1[1] + 1]), (corner2 := [*corner2[:1], corner2[1] - 1]))
+                 #     else:
+                 #         self.__place_wall_horizontal((corner1 := [*corner1[:1], corner1[1] - 1]), (corner2 := [*corner2[:1], corner2[1] + 1]))
+                 # else: #corner2 is above corner1
+                 #     self.__place_wall_horizontal(self, corner2, corner1)
+                 #     if (corner1[1] > corner2[1]): # corner 2 is to the left
+                 #         self.__place_wall_horizontal((corner2 := [*corner2[:1], corner2[1] + 1]), (corner1 := [*corner1[:1], corner1[1] - 1]))
+                 #     else:
+                 #         self.__place_wall_horizontal((corner2 := [*corner2[:1], corner2[1] - 1]), (corner1 := [*corner1[:1], corner1[1] + 1]))
+            
+             # elif direction == 1:
+             #     if(corner2[1] > corner1[1]): #corner 1 is to the left of corner 2
+             #         self.__place_wall_verticle(corner1,corner2)
+             #         if (corner2[0] > corner1[0]): # corner1 is above corner2
+             #             self.__place_wall_verticle((corner1 := [corner1[0] + 1, *corner1[1:]]), (corner2 := [corner2[0] - 1, *corner2[1:]]))
+             #         else:
+             #             self.__place_wall_verticle((corner1 := [corner1[0] - 1, *corner1[1:]]), (corner2 := [corner2[0] + 1, *corner2[1:]]))
+             #     else: #corner 2 is to the left of corner 1
+             #         self.__place_wall_verticle(corner2,corner1)
+             #         if (corner2[0] > corner1[0]): # corner2 is above corner1
+             #             self.__place_wall_verticle((corner2 := [corner2[0] + 1, *corner2[1:]]), (corner1 := [corner1[0] - 1, *corner1[1:]]))
+             #         else:
+             #             self.__place_wall_verticle((corner2 := [corner2[0] - 1, *corner2[1:]]), (corner1 := [corner1[0] + 1, *corner1[1:]]))
+    def find_wall(self, space1, space2,direction)->Wall:
+        if direction == 0:
+            for h in self.hWalls:
+                if space1 in h.spaces and space2 in h.spaces:
+                    return h
+
+        elif direction == 1:
+            for v in self.vWalls:
+                if space1 in v.spaces and space2 in v.spaces:
+                    return v
 
     # external game logic should check for valid moves and players before calling this function
     def move_player(self, player_num, direction):
             
-            if player_num == 1:
-                player = self.player1
-            elif player_num == 2:
-                player = self.player2
-            else:
-                raise ValueError("Invalid player number")
+            # if player_num == 1:
+            #     player = self.players[0]
+            # elif player_num == 2:
+            #     player = self.players[1]
+            # else:
+            #     raise ValueError("Invalid player number")
+            player = self.players[player_num-1]
+            #x = player[0]
             
-            player_location = player[0]
-            
-            self.__set_player(player_location, 0)
-
+            self.board[player.Y,player.X].remove_player()
+            # print(player.Y,player.X,direction)
             if direction == 0: # north
-                player_location[0] -= 1               
+                player.move(player.X,player.Y-1)               
             elif direction == 1: # east
-                player_location[1] += 1     
+                player.move(player.X+1,player.Y)     
             elif direction == 2: # south
-                player_location[0] += 1  
+                player.move(player.X,player.Y+1) 
             elif direction == 3: # west
-                player_location[1] -= 1
+                player.move(player.X-1,player.Y)
             else:
                 raise ValueError ("Invalid direction")
-            
-            self.__set_player(player_location, player_num)
+            # print(player.Y,player.X,direction)
+            self.board[player.Y,player.X].insert_player(player_num)
 
-            if player_num == 1:
-                self.player1 = (player_location, self.board[player_location[0], player_location[1]])
-            elif player_num == 2:
-                self.player2 = (player_location, self.board[player_location[0], player_location[1]])
+            # if player_num == 1:
+            #     self.players[0] = (player_location, self.board[player_location[0], player_location[1]])
+            # elif player_num == 2:
+            #     self.players[1] = (player_location, self.board[player_location[0], player_location[1]])
 
     def __set_player(self, location, new_player_num):
         cell_walls = self.board[location[0], location[1]][0]
         self.board[location[0], location[1]] = (cell_walls, new_player_num)
 
-    def __place_wall_horizontal(self, above, below):
-        above_walls, above_val = self.board[above[0], above[1]]
-        below_walls, below_val = self.board[below[0], below[1]]
+    # def __place_wall_horizontal(self, above, below):
+    #     above_walls, above_val = self.board[above[0], above[1]]
+    #     below_walls, below_val = self.board[below[0], below[1]]
 
-        above_walls[2] = 1  # South wall on the above cell
-        below_walls[0] = 1  # North wall on the below cell
+    #     above_walls[2] = 1  # South wall on the above cell
+    #     below_walls[0] = 1  # North wall on the below cell
 
-        self.board[above[0], above[1]] = (above_walls, above_val)
-        self.board[below[0], below[1]] = (below_walls, below_val)
+    #     self.board[above[0], above[1]] = (above_walls, above_val)
+    #     self.board[below[0], below[1]] = (below_walls, below_val)
 
-    def __place_wall_verticle(self, left, right):
-        left_walls, left_val = self.board[left[0], left[1]]
-        right_walls, right_val = self.board[right[0], right[1]]
+    # def __place_wall_verticle(self, left, right):
+    #     left_walls, left_val = self.board[left[0], left[1]]
+    #     right_walls, right_val = self.board[right[0], right[1]]
 
-        left_walls[1] = 1  # East wall on the left cell
-        right_walls[3] = 1  # West wall on the right cell
+    #     left_walls[1] = 1  # East wall on the left cell
+    #     right_walls[3] = 1  # West wall on the right cell
 
-        self.board[left[0], left[1]] = (left_walls, left_val)
-        self.board[right[0], right[1]] = (right_walls, right_val)
+    #     self.board[left[0], left[1]] = (left_walls, left_val)
+    #     self.board[right[0], right[1]] = (right_walls, right_val)
     
-    def __create_cell(self, r, c, size):
-        walls = [0,0,0,0]
+    # def __create_cell(self, r, c, size):
+    #     walls = [0,0,0,0]
 
-        if r == 0:  # Top row
-            walls[0] = 1
-        if r == size - 1: # Bottom Row
-            walls[2] = 1
-        if c == 0: # left collumn
-            walls[3] = 1
-        if c == size - 1: # right collumn
-            walls[1] = 1
+    #     if r == 0:  # Top row
+    #         walls[0] = 1
+    #     if r == size - 1: # Bottom Row
+    #         walls[2] = 1
+    #     if c == 0: # left collumn
+    #         walls[3] = 1
+    #     if c == size - 1: # right collumn
+    #         walls[1] = 1
         
-        #return (np.array(walls), 0)
-        return Space(walls)
+    #     #return (np.array(walls), 0)
+    #     return Space(walls)
+
+    # def __str__(self):
+    #     grid_str = ""
+    #     for r in range(self.size):
+    #         row_str = ", ".join(
+    #             f"[{walls.tolist()}, {val}]" for walls, val in self.board[r]
+    #         )
+    #         grid_str += f"{row_str}\n"
+    #     return grid_str
 
     def __str__(self):
         grid_str = ""
         for r in range(self.size):
-            row_str = ", ".join(
-                f"[{walls.tolist()}, {val}]" for walls, val in self.board[r]
-            )
-            grid_str += f"{row_str}\n"
-        return grid_str
+            for c in range(self.size):
+                space = self.board[r,c]
+                if space.player is NULL:
+                        grid_str += "0"
+                else:
+                        grid_str += f"{space.player}"
+                if c < self.size-1:
+                    space2 = self.board[r,c+1]
+                    wall = self.find_wall(space,space2,1)
+                    if wall.set:
+                         grid_str += "\\"
+                    else:
+                         grid_str += "|"
+            grid_str += "\n"
+            if r < self.size-1:
+                for c in range(self.size):
+                    space = self.board[r,c]
+                    space2 = self.board[r+1,c]
+                    wall = self.find_wall(space,space2,0)
+                    if wall.set:
+                        grid_str += "\\"
+                    else:
+                        grid_str += "-"
+                    grid_str += " "
+                grid_str += "\n"
 
+                        
+        return grid_str
 ### Testing code
 board = BoardState(size=5)
 

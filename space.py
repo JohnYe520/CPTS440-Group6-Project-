@@ -6,14 +6,17 @@ class Space:
     #def __init__(self, walls = [0,0,0,0]):
      #   self.walls = walls
       #  self.player = NULL
-    def __init__(self, neighbors):
-        self.neighbors = neighbors
+    def __init__(self):
+        self.neighbors = []
         self.player = NULL
 
-    def insertPlayer(self, playerNo):
+    def insert_neighbor(self, space):
+        self.neighbors.append(space)
+        
+    def insert_player(self, playerNo):
         self.player = playerNo
 
-    def removePlayer(self):
+    def remove_player(self):
         temp = self.player
         self.player = NULL
         return temp
@@ -21,7 +24,7 @@ class Space:
     #def placeWall(self, walls):
      #   self.walls = walls
 
-    def removeNeighbor(self, neighbor):
+    def remove_neighbor(self, neighbor):
         self.neighbors.remove(neighbor)
 
 
