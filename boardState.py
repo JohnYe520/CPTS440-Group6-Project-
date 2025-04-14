@@ -59,7 +59,7 @@ class BoardState:
             for r in range(self.size):
                 for c in range(self.size):
                     #self.board[r,c] = self.__create_cell(r,c, self.size)
-                    self.board[r,c] = Space()
+                    self.board[r,c] = Space(r,c)
             for r in range(self.size):
                 for c in range(self.size):
                     self.add_neighbors(r,c)
@@ -81,8 +81,21 @@ class BoardState:
         self.vWalls = []
         for r in range(self.size-1):
                 for c in range(self.size-1):
-                    self.hWalls.append(Wall([self.board[r,c],self.board[r+1,c],self.board[r,c+1],self.board[r+1,c+1]]))
-                    self.vWalls.append(Wall([self.board[r,c],self.board[r,c+1],self.board[r+1,c],self.board[r+1,c+1]]))
+                    hWall = Wall([self.board[r,c],self.board[r+1,c],self.board[r,c+1],self.board[r+1,c+1]])
+                    vWall = Wall([self.board[r,c],self.board[r,c+1],self.board[r+1,c],self.board[r+1,c+1]])
+                    if c != 0:
+                        hWall2 = self.hWalls[-1]
+                        hWall.add_neighbor(hWall2)
+                        hWall2.add_neighbor(hWall)
+                        vWall2 = self.vWalls[-1]
+                        vWall.add_neighbor(vWall2)
+                        vWall2.add_neighbor(vWall)
+                    self.hWalls.append(hWall)
+                    self.vWalls.append(vWall)
+        # print(f"{len(self.hWalls)} horiz walls and {len(self.vWalls)} vert walls")
+        # for w in range(len(self.hWalls)):
+        #      print(len(self.hWalls[w].neighbors))
+        #      print(len(self.vWalls[w].neighbors))
 
     def player_init(self, playerCount):
         if playerCount > 4 or playerCount < 2:
@@ -197,8 +210,14 @@ class BoardState:
             #     self.players[1] = (player_location, self.board[player_location[0], player_location[1]])
 
     def __set_player(self, location, new_player_num):
-        cell_walls = self.board[location[0], location[1]][0]
-        self.board[location[0], location[1]] = (cell_walls, new_player_num)
+        # cell_walls = self.board[location[0], location[1]][0]
+        # self.board[location[0], location[1]] = (cell_walls, new_player_num)
+        player = self.players[new_player_num-1]
+        self.board[player.Y,player.X].remove_player()
+        y,x = location
+        player.move(x,y)
+        self.board[player.Y,player.X].insert_player(player.PlayerNo)
+        
 
     # def __place_wall_horizontal(self, above, below):
     #     above_walls, above_val = self.board[above[0], above[1]]
@@ -244,6 +263,10 @@ class BoardState:
     #         grid_str += f"{row_str}\n"
     #     return grid_str
 
+    # def get_walls(self,y,x):
+    #     state = self.board(y,x)
+    #     if y > 0 and self.board(y,x)
+
     def __str__(self):
         grid_str = ""
         for r in range(self.size):
@@ -278,15 +301,15 @@ class BoardState:
 ### Testing code
 board = BoardState(size=5)
 
-board.place_wall((0,0), (1,1), 1)
+# board.place_wall((0,0), (1,1), 1)
 
-board.move_player(1, 2)
-board.move_player(2, 1)
+# board.move_player(1, 2)
+# board.move_player(2, 1)
 
-print(board)
+# print(board)
 
-board2 = BoardState(board)
-print(board2)
+# board2 = BoardState(board)
+# print(board2)
 
 
 

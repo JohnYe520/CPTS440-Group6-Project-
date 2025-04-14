@@ -13,7 +13,8 @@ def visualize_path(board: BoardState, path):
     path_set = set(path if path else [])
 
     def cell_content(r, c):
-        _, val = board.board[r][c]
+        state = board.board[r][c]
+        val = state.player
         if val == 1:
             return "1"
         elif val == 2:
@@ -29,7 +30,7 @@ def visualize_path(board: BoardState, path):
         row = ""
         for c in range(size):
             cell = f" {cell_content(r, c)} "
-            east_wall = board.board[r][c][0][1]
+            east_wall = board.board[r][c].get_walls()[1]
             row += cell + ("|" if east_wall else " ")
         print(row)
 
@@ -37,7 +38,7 @@ def visualize_path(board: BoardState, path):
         if r < size - 1:
             wall_row = ""
             for c in range(size):
-                south_wall = board.board[r][c][0][2]
+                south_wall = board.board[r][c].get_walls()[2]
                 wall_row += "---+" if south_wall else "   +"
             print(wall_row)
 

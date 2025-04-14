@@ -8,7 +8,7 @@ def a_star_path(board_state, player_num: int):
         start = (board_state.players[0].Y,board_state.players[0].X)
         goal_rows = {size - 1}
     elif player_num == 2:
-        start = (board_state.players[0].Y,board_state.players[0].X)
+        start = (board_state.players[1].Y,board_state.players[1].X)
         goal_rows = {0}
     else:
         raise ValueError("Invalid player number (should be 1 or 2)")
@@ -25,19 +25,20 @@ def a_star_path(board_state, player_num: int):
         
     def neighbors(pos):
         r, c = pos
-        walls, _ = board_state.board[r][c]
-        
+        state = board_state.board[r][c]
+        walls = state.get_walls()
         result = []
         if player_num == 1:
-            opponent_position = tuple(board_state.player2[0])
+            opponent_position = (board_state.players[1].Y,board_state.players[1].X)
         else:
-            opponent_position = tuple(board_state.player1[0])
+            opponent_position = (board_state.players[0].Y,board_state.players[0].X)
 
         for dir_index, (dr, dc) in enumerate(move_dirs):
             if walls[dir_index] == 0:
                 nr, nc = r + dr, c + dc
                 if 0 <= nr < size and 0 <= nc < size:
-                    opp_wall, _ = board_state.board[nr][nc]
+                    state2 = board_state.board[nr][nc]
+                    opp_wall = state2.get_walls()
                     # checking oposite wall
                     opposite = (dir_index + 2) % 4
                     if opp_wall[opposite] == 0:

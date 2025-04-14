@@ -6,7 +6,8 @@ class Space:
     #def __init__(self, walls = [0,0,0,0]):
      #   self.walls = walls
       #  self.player = NULL
-    def __init__(self):
+    def __init__(self,y,x):
+        self.pos = (y,x)
         self.neighbors = []
         self.player = NULL
 
@@ -20,11 +21,30 @@ class Space:
         temp = self.player
         self.player = NULL
         return temp
+    
+    def get_walls(self):
+        walls = [0,0,0,0]
+        y,x = self.pos
+        for n in self.neighbors:
+            if n.pos == (y-1,x):
+                walls[0] = 1
+            if n.pos == (y,x+1):
+                walls[1] = 1
+            if n.pos == (y+1,x):
+                walls[2] = 1
+            if n.pos == (y,x-1):
+                walls[3] = 1
+        return walls
+
 
     #def placeWall(self, walls):
      #   self.walls = walls
 
     def remove_neighbor(self, neighbor):
+        print(self.pos)
+        for n in self.neighbors:
+            print(n.pos)
+        print("\n")
         self.neighbors.remove(neighbor)
 
 
