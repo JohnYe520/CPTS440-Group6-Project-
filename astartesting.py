@@ -43,8 +43,6 @@ def visualize_path(board: BoardState, path):
             print(wall_row)
 
 
-
-
 def test_basic_path():
     print("\nPerforming Basic Path Test:")
     board = BoardState(size=5)
@@ -100,14 +98,15 @@ def test_no_path():
 def test_jump_opponent():
     print("\n\nPerforming jump opponent test:")
     board = BoardState(size = 5)
-    board.move_player(1, 2)
-    board.move_player(2, 0)
-    board.move_player(1, 2)
-    board.move_player(2, 0)
-    board.move_player(2, 2)
+
+    board.teleport_player(1, 2, 2)  # P1 to (2,2)
+    board.teleport_player(2, 3, 2)  # P2 to (3,2)
+
+    print(f"Player 1 at: ({board.players[0].Y}, {board.players[0].X})")
+    print(f"Player 2 at: ({board.players[1].Y}, {board.players[1].X})")
 
     path1 = a_star_path(board, 1)
-    board._BoardState__set_player([2,2], 1)
+
     print("\nPlayer 1:")
     print_found(path1)
     visualize_path(board, path1)
