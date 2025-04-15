@@ -1,5 +1,6 @@
 from boardState import BoardState
 
+# advanced logic to represent rules of the game, such as walls blocking movement or jumping over other players
 class MoveLogic:
     def __init__(self, *args, size=0):
         self.state = BoardState(args, size)

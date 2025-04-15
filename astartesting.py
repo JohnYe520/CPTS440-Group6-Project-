@@ -122,7 +122,8 @@ def test_sidestep_opponent():
     board.place_wall((3, 2), (4,3), 0)
 
     path1 = a_star_path(board, 1)
-    board._BoardState__set_player([2,2], 1)
+    #board._BoardState__set_player([2,2], 1)
+    board.teleport_player(1, 2, 2)
     print("\nPlayer 1:")
     print_found(path1)
     visualize_path(board, path1)
