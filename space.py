@@ -3,9 +3,6 @@ import player
 
 
 class Space:
-    #def __init__(self, walls = [0,0,0,0]):
-     #   self.walls = walls
-      #  self.player = NULL
     def __init__(self,y,x):
         self.pos = (y,x)
         self.neighbors = []
@@ -35,10 +32,6 @@ class Space:
             if n.pos == (y,x-1):
                 walls[3] = 1
         return walls
-
-
-    #def placeWall(self, walls):
-     #   self.walls = walls
 
     def remove_neighbor(self, neighbor):
         print(self.pos)
