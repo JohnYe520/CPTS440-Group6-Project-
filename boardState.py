@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 from typing import List
 import numpy as np
 from player import Player
@@ -171,7 +170,7 @@ class BoardState:
         for r in range(self.size):
             for c in range(self.size):
                 space = self.board[r,c]
-                if space.player is NULL: # space is empty
+                if space.player is None: # space is empty
                         grid_str += "0"
                 else:
                         grid_str += f"{space.player}" # print player num
