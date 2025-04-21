@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 from typing import List
 import numpy as np
 from player import Player
@@ -82,13 +81,26 @@ class BoardState:
                 for c in range(self.size-1):
                     hWall = Wall([self.board[r,c],self.board[r+1,c],self.board[r,c+1],self.board[r+1,c+1]])
                     vWall = Wall([self.board[r,c],self.board[r,c+1],self.board[r+1,c],self.board[r+1,c+1]])
-                    if c != 0: # set conflicting wall placements as neighbors of each other; currently only considers conflicting walls in same direction
+                    
+                    # set conflicting wall placements as neighbors of each other; currently only considers conflicting walls in same direction
+                    # Connect horizontally adjacent horizontal walls that might overlap
+                    if c != 0:
                         hWall2 = self.hWalls[-1]
                         hWall.add_neighbor(hWall2)
                         hWall2.add_neighbor(hWall)
-                        vWall2 = self.vWalls[-1]
+                        # Removed unnecessary vertical wall connections
+                    
+                    # Connect vertically adjacent vertical walls that might overlap
+                    if r != 0:
+                        v_index = (r-1) * (self.size-1) + c
+                        vWall2 = self.vWalls[v_index]
                         vWall.add_neighbor(vWall2)
                         vWall2.add_neighbor(vWall)
+
+                    # Consider wall of different orientation at the same position to be different
+                    hWall.add_neighbor(vWall)
+                    vWall.add_neighbor(hWall)
+                        
                     self.hWalls.append(hWall)
                     self.vWalls.append(vWall)
 
@@ -171,7 +183,7 @@ class BoardState:
         for r in range(self.size):
             for c in range(self.size):
                 space = self.board[r,c]
-                if space.player is NULL: # space is empty
+                if space.player is None: # space is empty
                         grid_str += "0"
                 else:
                         grid_str += f"{space.player}" # print player num

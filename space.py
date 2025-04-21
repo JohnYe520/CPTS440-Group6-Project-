@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 import player
 
 # a space on the board, which keeps track of neighboring spaces that can be reached from it (i.e. not blocked by a wall)
@@ -6,7 +5,7 @@ class Space:
     def __init__(self,y,x):
         self.pos = (y,x) # the space's designated position on the board
         self.neighbors = [] # the spaces that can be reached from this space; initially empty, since we have not necessarily created all its neighbors yet
-        self.player = NULL # the number of the player on this space; does not contain the player object
+        self.player = None # the number of the player on this space; does not contain the player object
 
     # adds a new space to the list of neighbors
     def insert_neighbor(self, space):

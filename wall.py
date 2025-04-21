@@ -1,5 +1,3 @@
-from asyncio.windows_events import NULL
-
 # a possible wall to be placed on the board in order to block off access to spaces
 # each wall "blocks" two pairs of spaces when activated by removing those spaces from each other's list of neighbors
 # walls that overlap with each other cannot both be placed; when a wall is placed, its neighbors are marked as 'set' as well, and cannot be activated
@@ -17,6 +15,7 @@ class Wall:
     # always returns true, supposed to return false if wall is already set
     def wall_off(self):
         if not self.set:
+            print("debug")
             self.spaces[0].remove_neighbor(self.spaces[1])
             self.spaces[1].remove_neighbor(self.spaces[0])
             self.spaces[2].remove_neighbor(self.spaces[3])
@@ -24,7 +23,7 @@ class Wall:
             self.set = True
             for n in self.neighbors:
                 n.set = True
-        return self.set
+            return True
 
 
 
