@@ -3,8 +3,78 @@
 This repository contains the final group project for CPTS440/540: an AI-driven implementation of the game **Quoridor**, including an interactive game app and multiple agent testing frameworks.
 
 ## Project Structure
+CPTS440-Group6-Project/
+│
+├── GameApp/                            # Main game logic and interactive UI
+│   ├── .vs/
+│   ├── .gitignore
+│   ├── GameManager.py
+│   ├── README.md
+│   ├── aStarAgent.py
+│   ├── aStarAgentTesting.py
+│   ├── astarpathfinding.py
+│   ├── astartesting.py
+│   ├── boardState.py
+│   ├── interactive_ui_pygame.py
+│   ├── moveLogic.py
+│   ├── player.py
+│   ├── space.py
+│   └── wall.py
+│
+├── Tests/                              # All agent testing scripts and results
+│   ├── boardState.py                   # Legacy board implementation
+│   │
+│   ├── baselineAgent/                  # Old baseline agent (not used in tests)
+│   │   ├── boardState.py
+│   │   ├── randomMove.py
+│   │   ├── shortMove.py
+│   │   ├── shortMoveWallPlace.py
+│   │   └── testWallPlace.py
+│   │
+│   ├── CaseTestsandBFSAgent/           # A* case tests and BFS agent comparison
+│   │   ├── .vs/
+│   │   ├── .gitignore
+│   │   ├── GameManager.py
+│   │   ├── README.md
+│   │   ├── aStarAgent.py
+│   │   ├── aStarAgentTesting.py
+│   │   ├── astarpathfinding.py
+│   │   ├── astartesting.py
+│   │   ├── bfsAgent.py
+│   │   ├── boardState.py
+│   │   ├── caseTest.py
+│   │   ├── moveLogic.py
+│   │   ├── player.py
+│   │   ├── shortTest.json
+│   │   ├── space.py
+│   │   └── testAgent.py
+│   │
+│   ├── RandomMoveAgent/                # A* tests against random-move agent
+│       ├── .gitignore
+│       ├── GameManager.py
+│       ├── README.md
+│       ├── aStarAgent.py
+│       ├── aStarAgentTesting.py
+│       ├── astarpathfinding.py
+│       ├── astartesting.py
+│       ├── boardState.py
+│       ├── moveLogic.py
+│       ├── player.py
+│       ├── randomMove.py
+│       ├── shortRandomTest.json
+│       ├── space.py
+│       └── testRandomAgent.py
+│
+├── .gitignore
+└── README.md
 
+## Requirements
 
+Before running the project, install the required Python libraries:
+
+```bash
+pip install pygame numpy
+```
 ## GameApp
 
 The `GameApp/` folder includes a playable version of Quoridor. It supports:
