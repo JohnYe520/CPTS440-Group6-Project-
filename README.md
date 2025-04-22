@@ -30,11 +30,16 @@ To run the game:
 ```bash
 cd GameApp
 python interactive_ui_pygame.py
+```
 
 To run A* vs BFS tests:
+```bash
 cd Tests/CaseTestsandBFSAgent
 python testAgent.py
+```
 
 To run A* vs Random tests:
+```bash
 cd Tests/RandomMoveAgent
 python testRandomAgent.py
+```
