@@ -183,11 +183,11 @@ def run_game(game_id, max_turns=100):
     return game_log
 
 if __name__ == "__main__":
-    num_games = 15
+    num_games = 100
     all_game_results = []
 
     for i in range(1, num_games + 1):
-        result = run_game(game_id=i, max_turns=150)
+        result = run_game(game_id=i, max_turns=100)
         if result is not None:
             all_game_results.append(result)
         else:
