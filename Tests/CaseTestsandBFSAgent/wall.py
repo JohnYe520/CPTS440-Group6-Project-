@@ -1,5 +1,3 @@
-from asyncio.windows_events import NULL
-
 # a possible wall to be placed on the board in order to block off access to spaces
 # each wall "blocks" two pairs of spaces when activated by removing those spaces from each other's list of neighbors
 # walls that overlap with each other cannot both be placed; when a wall is placed, its neighbors are marked as 'set' as well, and cannot be activated
