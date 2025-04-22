@@ -3,8 +3,8 @@
 This repository contains the final group project for CPTS440/540: an AI-driven implementation of the game **Quoridor**, including an interactive game app and multiple agent testing frameworks.
 
 ## Project Structure
+```text
 CPTS440-Group6-Project/
-│
 ├── GameApp/                            # Main game logic and interactive UI
 │   ├── .vs/
 │   ├── .gitignore
@@ -23,15 +23,13 @@ CPTS440-Group6-Project/
 │
 ├── Tests/                              # All agent testing scripts and results
 │   ├── boardState.py                   # Legacy board implementation
-│   │
-│   ├── baselineAgent/                  # Old baseline agent (not used in tests)
+│   ├── baselineAgent/                  # Legacy agent testing scripts
 │   │   ├── boardState.py
 │   │   ├── randomMove.py
 │   │   ├── shortMove.py
 │   │   ├── shortMoveWallPlace.py
 │   │   └── testWallPlace.py
-│   │
-│   ├── CaseTestsandBFSAgent/           # A* case tests and BFS agent comparison
+│   ├── CaseTestsandBFSAgent/
 │   │   ├── .vs/
 │   │   ├── .gitignore
 │   │   ├── GameManager.py
@@ -48,8 +46,7 @@ CPTS440-Group6-Project/
 │   │   ├── shortTest.json
 │   │   ├── space.py
 │   │   └── testAgent.py
-│   │
-│   ├── RandomMoveAgent/                # A* tests against random-move agent
+│   └── RandomMoveAgent/
 │       ├── .gitignore
 │       ├── GameManager.py
 │       ├── README.md
@@ -67,6 +64,7 @@ CPTS440-Group6-Project/
 │
 ├── .gitignore
 └── README.md
+```
 
 ## Requirements
 
