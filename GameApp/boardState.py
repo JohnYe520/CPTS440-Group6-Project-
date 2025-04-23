@@ -3,6 +3,7 @@ import numpy as np
 from player import Player
 from space import Space
 from wall import Wall
+from astarpathfinding import a_star_path
 
 #the board is a 9X9 grid of tuples ([int], int).
 #   -The first element is the wall state array, the second number is the player number
@@ -139,12 +140,42 @@ class BoardState:
     # The final parameter of the place_wall function is the direction of the wall that will be placed, 0 is for a horizontal wall, 1 is for a vertical wall.
     # walls have four designated spaces, only 1 horiz and 1 vert can have the same set of spaces
     def place_wall(self, corner1, corner2, direction): # 0 for horizontal, 1 for vertical
-             if abs(corner1[0] - corner2[0]) != 1 or abs(corner1[1] - corner2[1]) != 1: # check that the rows and columns are 1 aprt.
-                 return False
-             space1 = self.board[corner1[0],corner1[1]]
-             space2 = self.board[corner2[0],corner2[1]]
-             wall = self.find_wall(space1,space2,direction)
-             return wall.wall_off()
+        # 1. Try to place the wall tentatively
+        wall = self.find_wall(self.board[corner1[0], corner1[1]], self.board[corner2[0], corner2[1]], direction)
+        if wall is None or wall.set:
+            return False  # Already set or invalid
+
+        # Save current state for rollback
+        removed_neighbors = []
+        for i in range(0, 4, 2):
+            s1, s2 = wall.spaces[i], wall.spaces[i+1]
+            if s2 in s1.neighbors:
+                s1.neighbors.remove(s2)
+                removed_neighbors.append((s1, s2))
+            if s1 in s2.neighbors:
+                s2.neighbors.remove(s1)
+                removed_neighbors.append((s2, s1))
+
+        wall.set = True
+        for n in wall.neighbors:
+            n.set = True
+
+        # 2. Check if both players have a path
+        path1 = a_star_path(self, 1)
+        path2 = a_star_path(self, 2)
+        valid = path1 is not None and path2 is not None
+
+        # 3. Rollback if not valid
+        if not valid:
+            # Undo wall
+            wall.set = False
+            for n in wall.neighbors:
+                n.set = False
+            for s1, s2 in removed_neighbors:
+                s1.neighbors.append(s2)
+            return False
+
+        return True
 
     # helper function, returns the first wall in the list that contains the two desired spaces. 
     # Direction is boolean, determines if we check the horizontal wall list (0) or vertical wall list (1)
