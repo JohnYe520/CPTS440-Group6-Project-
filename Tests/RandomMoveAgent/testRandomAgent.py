@@ -9,7 +9,7 @@ from aStarAgent import AStarAgent
 from randomMove import RandomMoveAgent
 
 # --------------------------------------------------------------
-# This is the implementation for testing the A* agent with the BFS agent.
+# This is the implementation for testing the A* agent with the random-move agent.
 # Starting location for each agent are randomized in this test, total 100 games will be run 
 # The result are logged to a JSON file shortRandomTest.json that will be save in the same directory with this test file
 # --------------------------------------------------------------
