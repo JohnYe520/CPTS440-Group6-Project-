@@ -102,10 +102,12 @@ cd GameApp
 python interactive_ui_pygame.py
 ```
 
-To run A* vs BFS tests:
+To run case tests, A* vs BFS tests and A* vs A* tests:
 ```bash
 cd Tests/CaseTestsandBFSAgent
+python caseTest.py
 python testAgent.py
+python 2AStarAgentsTesting.py
 ```
 
 To run A* vs Random tests:
