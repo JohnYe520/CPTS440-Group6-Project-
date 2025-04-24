@@ -1,4 +1,4 @@
-# CPTS440-Group6-Project - Agent Testing Branch
+# CPTS440-Group6-Project - CaseTest and BFS Agent
 
 This branch is focused on evaluating the performance of the AStarAgent through automated testing.
 
@@ -15,13 +15,26 @@ The purpose of this branch is to:
 - `bfsAgent.py`: Contains the implementation of the baseline BFSAgent.
 - `caseTest.py`: Defines 5 test cases that verify the basic functionality of the AStarAgent.
 - `testAgent.py`: Runs 100 simulation games between AStarAgent and BFSAgent.
-    - Logs each game's result, movement path, and wall placement to `shortTest.json`.
-    - Calculates and prints the win rate of both agents after all games.
-- `shortTest.json`: Stores the simulation results of 100 games for performance review.
+  - Logs each game's result, movement path, and wall placement to `shortTest.json`.
+  - Calculates and prints the win rate of both agents after all games.
+- `randomAStarTesting.py`: Runs 100 randomized self-play games using two AStarAgents.
+  - Each game starts from random positions (excluding goal rows).
+  - Reports total win count for Player 1 and Player 2.
+- `shortTest.json`: Stores the simulation results of 100 games against BFS agent for performance review.
 
 ## How to Use
 
 1. Make sure all dependencies are installed.
-2. Run the test simulation with:
+2. Run the test simulation:
+   for case tests:
+   ```bash
+   python caseTests.py
+   ```
+   for tests with BFS Agent:
    ```bash
    python testAgent.py
+   ```
+   for tests with two A* Agents:
+   ```bash
+   python randomAStarTesting.py
+   ```
